@@ -1,10 +1,11 @@
 import Button from "@/styles/button";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
 
 const LeftMenuStyled = styled.div`
-  width: 267px;
+  width: 217px;
 
   .section-group-con {
     margin-top: 26px;
@@ -12,6 +13,10 @@ const LeftMenuStyled = styled.div`
     flex-direction: column;
     gap: 30px;
     margin-bottom: 17px;
+
+    & > div:first-child {
+      margin-bottom: 40px;
+    }
   }
 
   .logo {
@@ -47,21 +52,21 @@ const LeftMenuStyled = styled.div`
 const LeftMenu = () => {
   return (
     <LeftMenuStyled>
-      <div className="logo">
+      <Link href={"/"} className="logo">
         <Image
           src={"/images/capywitter-logo.png"}
           width={209}
           height={188}
           alt="CapyWitter Logo"
         />
-      </div>
+      </Link>
       <div className="section-group-con">
         <div className="section-group">
           <div className="section-title">What is CapyWitter?</div>
           <div className="section-desc">
-            CapyWitter is a public bullettin board for rich kids of Capybaras!
-            Capybara holders can exchange their Capy’s to 10 Capytoken and buy a
-            slot (capyboard)!
+            CapyWitter is a public bullettin board for rich kids of{" "}
+            <Link href="">Capybaras</Link>! Capybara holders can exchange their
+            Capy’s to 10 Capytoken and buy a slot (capyboard)!
             <div className="s-space"></div>
             There is only 10 public bulletin board for waiting for best offers!
           </div>

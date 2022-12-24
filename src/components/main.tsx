@@ -7,17 +7,40 @@ const MainStyled = styled.div`
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 50px;
-  gap: 83px;
+  gap: 21px;
   padding: 0 16px 50px 16px;
 
   .right-menu-con {
-    width: 500px;
+    width: 460px;
   }
 
   .title {
     font-weight: 700;
     font-size: 32px;
     line-height: 38px;
+  }
+
+  .desc {
+    font-size: 13px;
+    line-height: 15.41px;
+    font-style: italic;
+
+    b {
+      font-style: normal;
+      font-weight: 500;
+      display: inline-block;
+      margin-top: 6px;
+    }
+  }
+
+  .title-desc {
+    display: flex;
+    gap: 12px;
+    flex-basis: 50%;
+
+    &.more-space {
+      gap: 26px;
+    }
   }
 `;
 

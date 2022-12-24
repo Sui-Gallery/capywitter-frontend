@@ -24,6 +24,7 @@ const HeaderStyled = styled.div`
   a {
     font-weight: 700;
     transition: opacity 0.3s ease;
+    text-decoration: none;
 
     &:hover {
       opacity: 0.7;

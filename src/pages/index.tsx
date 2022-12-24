@@ -1,11 +1,11 @@
 import Main from "@/components/main";
-import Feed from "@/components/sections/feed";
+import FeedSection from "@/components/sections/feed";
 
 export default function Home() {
   return (
     <>
       <Main>
-        <Feed />
+        <FeedSection />
       </Main>
     </>
   );

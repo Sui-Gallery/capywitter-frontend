@@ -71,7 +71,7 @@ const FeedStyled = styled.div`
   }
 `;
 
-const Feed = () => {
+const FeedSection = () => {
   return (
     <FeedStyled>
       <div className="title">CAPYFEED</div>
@@ -101,4 +101,4 @@ const Feed = () => {
   );
 };
 
-export default Feed;
+export default FeedSection;

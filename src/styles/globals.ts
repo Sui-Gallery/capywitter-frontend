@@ -27,7 +27,6 @@ const GlobalStyles = createGlobalStyle`
   }
   a {
     color: inherit;
-    text-decoration: none;
   }
   * {
     box-sizing: border-box;
