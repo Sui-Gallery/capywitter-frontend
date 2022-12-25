@@ -43,7 +43,7 @@ const Logo = ({ $mode }: LogoProps) => {
   return (
     <LogoStyled href={"/"} $mode={$mode}>
       <Image
-        src={"/images/capywitter-logo.png"}
+        src={"/images/capywitter-xmas-logo.png"}
         width={209}
         height={188}
         alt="CapyWitter Logo"

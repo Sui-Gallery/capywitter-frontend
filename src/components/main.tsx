@@ -7,9 +7,11 @@ const MainStyled = styled.div`
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 50px;
   gap: 21px;
   padding: 0 16px 50px 16px;
+  max-width: 100%;
+  width: 1300px;
+  margin: 50px auto 0px auto;
 
   .right-menu-con {
     width: 460px;

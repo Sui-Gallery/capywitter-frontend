@@ -10,7 +10,7 @@ const HeaderStyled = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 1155px;
+  width: 1300px;
   max-width: 100%;
   margin: auto;
   margin-top: 12px;
@@ -22,7 +22,7 @@ const HeaderStyled = styled.div`
     display: flex;
     align-items: center;
     gap: 32px;
-    margin-right: 133px;
+    margin-right: 48px;
   }
 
   a {
@@ -77,7 +77,9 @@ const HeaderStyled = styled.div`
     }
   }
 
-  .wkit-button {
+  .wkit-button,
+  .wkit-connected-container {
+    width: 240px;
   }
 `;
 
