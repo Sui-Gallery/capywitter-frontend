@@ -3,11 +3,19 @@ import CapyItem from "../capy-item";
 
 const HotelCapyforniaSectionStyled = styled.div`
   .capy-list {
+    max-width: 100%;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 50px;
     margin-left: 20px;
+  }
+
+  @media screen and (max-width: 520px) {
+    .capy-list {
+      margin-left: 0;
+      justify-content: space-around;
+    }
   }
 `;
 

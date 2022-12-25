@@ -37,11 +37,7 @@ const CapyItem = ({ image_src, select, selected }: CapyItemProps) => {
       <div className="wrapper">
         <Image src={image_src} width={110} height={115} alt="Capy item" />
       </div>
-      {select && (
-        <Button $mode="capytoken-select" $selected={selected}>
-          {selected ? "Send" : "Select"}
-        </Button>
-      )}
+      {select && <Button $mode="capytoken-select"></Button>}
     </CapyItemStyled>
   );
 };

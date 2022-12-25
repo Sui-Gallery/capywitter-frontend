@@ -1,5 +1,9 @@
 import Button from "@/styles/button";
+import { isMobile } from "@/utils/utils";
+import { useState } from "react";
 import styled from "styled-components";
+import AvailabilityText from "../availability-text";
+import Popup from "../popup";
 
 const FeedStyled = styled.div`
   .feeds-con {
@@ -69,12 +73,21 @@ const FeedStyled = styled.div`
     color: #32446b;
     margin-right: 13px;
   }
+
+  @media screen and (max-width: 650px) {
+    .title {
+      display: none;
+    }
+  }
 `;
 
 const FeedSection = () => {
+  const [popupShow, setPopupShow] = useState(false);
+
   return (
     <FeedStyled>
       <div className="title">CAPYFEED</div>
+      <AvailabilityText />
       <div className="feeds-con">
         {Array.from({ length: 10 }).map((e, index) => (
           <div className="feed-item" key={"feed-item_" + index}>
@@ -92,11 +105,17 @@ const FeedSection = () => {
                 <span className="info-title">current min box price:</span>
                 <span>100 CAPYTOKEN</span>
               </div>
-              <Button $mode="feed-button">Buy This Box!</Button>
+              <Button
+                $mode="feed-button"
+                onClick={() => !isMobile() && setPopupShow(true)}
+              >
+                Buy This Box!
+              </Button>
             </div>
           </div>
         ))}
       </div>
+      <Popup content="capyboard" setShow={setPopupShow} show={popupShow} />
     </FeedStyled>
   );
 };

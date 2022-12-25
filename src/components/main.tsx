@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import LeftMenu from "./left-menu";
+import Popup from "./popup";
 
 const MainStyled = styled.div`
   display: flex;
@@ -42,6 +43,19 @@ const MainStyled = styled.div`
       gap: 26px;
     }
   }
+
+  @media screen and (max-width: 650px) {
+    .title-desc {
+      flex-direction: column;
+      flex-basis: 100%;
+
+      &.more-space {
+        gap: 12px;
+      }
+    }
+
+    margin-top: 10px;
+  }
 `;
 
 const Main = ({ children }: any) => {
@@ -49,6 +63,7 @@ const Main = ({ children }: any) => {
     <MainStyled>
       <LeftMenu />
       <div className="right-menu-con">{children}</div>
+      <Popup />
     </MainStyled>
   );
 };

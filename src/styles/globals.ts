@@ -21,6 +21,8 @@ const GlobalStyles = createGlobalStyle`
     font-style: normal;
     font-weight: 400;
   }
+  
+  textarea,
   input,
   button{
     font-family: 'Rubik', sans-serif;
@@ -31,6 +33,8 @@ const GlobalStyles = createGlobalStyle`
   * {
     box-sizing: border-box;
   }
+
+ 
 `;
 
 export default GlobalStyles;
