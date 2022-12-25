@@ -63,7 +63,6 @@ const Main = ({ children }: any) => {
     <MainStyled>
       <LeftMenu />
       <div className="right-menu-con">{children}</div>
-      <Popup />
     </MainStyled>
   );
 };
