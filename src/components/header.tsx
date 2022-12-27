@@ -10,7 +10,7 @@ const HeaderStyled = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 1300px;
+  width: 1000px;
   max-width: 100%;
   margin: auto;
   margin-top: 12px;
@@ -22,7 +22,7 @@ const HeaderStyled = styled.div`
     display: flex;
     align-items: center;
     gap: 32px;
-    margin-right: 48px;
+    margin-right: 32px;
   }
 
   a {

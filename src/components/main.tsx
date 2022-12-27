@@ -5,12 +5,11 @@ import Popup from "./popup";
 
 const MainStyled = styled.div`
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
   gap: 21px;
   padding: 0 16px 50px 16px;
   max-width: 100%;
-  width: 1300px;
+  width: 1000px;
   margin: 50px auto 0px auto;
 
   .right-menu-con {
@@ -44,6 +43,10 @@ const MainStyled = styled.div`
     &.more-space {
       gap: 26px;
     }
+  }
+
+  @media screen and (max-width: 745px) {
+    justify-content: center;
   }
 
   @media screen and (max-width: 650px) {
