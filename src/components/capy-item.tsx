@@ -29,15 +29,22 @@ type CapyItemProps = {
   image_src: string;
   select?: boolean;
   selected?: boolean;
+  onClick?: any;
 };
 
-const CapyItem = ({ image_src, select, selected }: CapyItemProps) => {
+const CapyItem = ({ image_src, select, selected, onClick }: CapyItemProps) => {
   return (
     <CapyItemStyled>
       <div className="wrapper">
-        <Image src={image_src} width={110} height={115} alt="Capy item" />
+        <Image
+          src={image_src}
+          width={110}
+          height={115}
+          alt="Capy item"
+          unoptimized
+        />
       </div>
-      {select && <Button $mode="capytoken-select"></Button>}
+      {select && <Button $mode="capytoken-select" onClick={onClick}></Button>}
     </CapyItemStyled>
   );
 };

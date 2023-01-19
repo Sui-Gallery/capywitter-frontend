@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <link
             rel="apple-touch-icon"
             sizes="180x180"
-            href="/images/favoricon/apple-icon-180x180.png"
+            href="/images/favoricon/apple-touch-icon.png"
           />
           <link
             rel="icon"

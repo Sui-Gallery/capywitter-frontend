@@ -1,6 +1,8 @@
+import { getCapiesList } from "@/services/capy.service";
 import Button from "@/styles/button";
-import { isMobile } from "@/utils/utils";
-import { useState } from "react";
+import { useWallet, useSuiProvider } from "@suiet/wallet-kit";
+import axios from "axios";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
 import CapyItem from "../capy-item";
@@ -62,6 +64,48 @@ const CapyTokenSectionStyled = styled.div`
 
 const CapyTokenSection = () => {
   const [popupShow, setPopupShow] = useState(false);
+  const wallet = useWallet();
+  const didMount = useRef(false);
+
+  const [userCapies, setUserCapies] = useState<any[]>([]);
+
+  const exchangeCapy = useCallback(async () => {
+    if (wallet.connected && didMount.current !== true) {
+      didMount.current = true;
+      const result = await wallet.signAndExecuteTransaction({
+        transaction: {
+          kind: "moveCall",
+          data: {
+            packageObjectId: "0x38e9a153cde164e1ff1e6aff5b8b93f836b8ba75",
+            module: "NFT",
+            function: "mint",
+            typeArguments: [],
+            arguments: [],
+            gasBudget: 10000,
+          },
+        },
+      });
+    }
+  }, [wallet]);
+
+  const handleCapySendClick = (objectId: string) => {
+    console.log(objectId);
+  };
+
+  const initUserCapies = useCallback(async () => {
+    if (wallet.connected && wallet.address && didMount.current !== true) {
+      didMount.current = true;
+      console.log(2, wallet.address);
+
+      const cp = await getCapiesList(wallet.address);
+      console.log(3);
+      setUserCapies(cp);
+    }
+  }, [wallet.address, wallet.connected]);
+
+  useEffect(() => {
+    initUserCapies();
+  }, [initUserCapies]);
 
   return (
     <CapyTokenSectionStyled>
@@ -76,9 +120,17 @@ const CapyTokenSection = () => {
       </div>
 
       <div className="capy-list">
-        <CapyItem image_src="/images/capys/blue.png" select selected />
-        <CapyItem image_src="/images/capys/orange.png" select />
-        <CapyItem image_src="/images/capys/green.png" select />
+        {userCapies.map((capy, index) => {
+          console.log("asdasokdjsa", capy);
+          return (
+            <CapyItem
+              key={"capy-" + index}
+              image_src={capy?.details?.data?.fields?.url}
+              select
+              onClick={() => console.log("1321321")}
+            />
+          );
+        })}
       </div>
       <div className="or-divider">or</div>
       <Button
