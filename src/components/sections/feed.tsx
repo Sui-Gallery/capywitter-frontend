@@ -174,7 +174,7 @@ const FeedSection = () => {
   }
 
   const mergeCoins = async () => {
-    
+    // test commit
   }
 
   // component function
