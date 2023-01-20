@@ -8,6 +8,7 @@ import AvailabilityText from "../availability-text";
 import CapyItem from "../capy-item";
 import Popup from "../popup";
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
+import { Slot } from "@/types/Slot";
 
 /*
 TODO: 1- change const vars with env vars
@@ -78,14 +79,14 @@ const CapyTokenSectionStyled = styled.div`
   }
 `;
 
-const provider = new JsonRpcProvider(RPC_URL)
-
 const CapyTokenSection = () => {
   const [popupShow, setPopupShow] = useState(false);
   const wallet = useWallet();
   const didMount = useRef(false);
 
   const [userCapies, setUserCapies] = useState<any[]>([]);
+
+  const provider = useRef<JsonRpcProvider>()
 
   const exchangeCapy = useCallback(async () => {
     if (wallet.connected && didMount.current !== true) {
@@ -122,7 +123,15 @@ const CapyTokenSection = () => {
   }, [wallet.address, wallet.connected]);
 
   const initWeb3 = useCallback(async () => {
-    const twitterObject = await provider.getObject(TWITTER_ID);
+    const sui_provider = new JsonRpcProvider(RPC_URL);
+    console.log(sui_provider)
+    provider.current = sui_provider
+    const twitterObject = await provider.current.getObjectsOwnedByObject(TWITTER_ID);
+    console.log(twitterObject);
+  }, [])
+
+  useEffect(() => {
+    initWeb3()
   }, [])
 
   useEffect(() => {
