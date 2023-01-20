@@ -85,6 +85,7 @@ const CapyTokenSection = () => {
   const didMount = useRef(false);
 
   const [userCapies, setUserCapies] = useState<any[]>([]);
+  const [capySlots, setCapySlots] = useState<Slot[]>([]);
 
   const provider = useRef<JsonRpcProvider>()
 
@@ -142,6 +143,7 @@ const CapyTokenSection = () => {
       else return 1
     })
     console.log(slots)
+    setCapySlots(slots)
   }, [])
 
   useEffect(() => {
