@@ -124,10 +124,24 @@ const CapyTokenSection = () => {
 
   const initWeb3 = useCallback(async () => {
     const sui_provider = new JsonRpcProvider(RPC_URL);
-    console.log(sui_provider)
     provider.current = sui_provider
-    const twitterObject = await provider.current.getObjectsOwnedByObject(TWITTER_ID);
-    console.log(twitterObject);
+    const slotObjects = await provider.current.getObjectsOwnedByObject(TWITTER_ID);
+    let slots = await Promise.all(slotObjects.map(async(slotObj) => {
+      const rawSlot = await provider.current!.getObject(slotObj.objectId)
+      // ts claims there is no such data, probably wrong typing by library
+      const fields = rawSlot.details.data.fields.value.fields
+      return {
+        edited_by: fields.edited_by,
+        index: fields.index as number,
+        minimum_fee: fields.minimum_fee,
+        text: fields.text,
+      } as Slot
+    }))
+    slots = slots.sort((a: Slot, b: Slot): number => {
+      if (a.index < b.index) return -1
+      else return 1
+    })
+    console.log(slots)
   }, [])
 
   useEffect(() => {
