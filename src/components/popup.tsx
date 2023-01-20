@@ -1,5 +1,7 @@
+import { exchangeCapy } from "@/services/capy.service";
 import Button from "@/styles/button";
 import { isMobile } from "@/utils/utils";
+import { useWallet } from "@suiet/wallet-kit";
 import Image from "next/image";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
@@ -8,6 +10,8 @@ type PopupProps = {
   show: boolean;
   setShow: any;
   content: "capyboard" | "capytoken";
+  setUserCapies?: any;
+  userCapies?: any[];
 };
 
 const CapyTokenContentStyled = styled.div`
@@ -34,6 +38,27 @@ const CapyTokenContentStyled = styled.div`
 `;
 
 const CapyTokenContent = (props: PopupProps) => {
+  const wallet = useWallet();
+
+  const handleGiveAllCapiesButton = async () => {
+    console.log(1, props.userCapies);
+    const allCapyIds =
+      props?.userCapies?.map((capy) => capy?.details?.reference?.objectId) ||
+      [];
+
+    const result = await exchangeCapy(wallet, allCapyIds);
+
+    if (result && result?.effects.status.status === "success") {
+      props.setUserCapies([]);
+      props.setShow(false);
+      return;
+    }
+    console.log(3);
+
+    alert("Problem occured while moving CapyTokens!");
+    props.setShow(false);
+  };
+
   return (
     <>
       <CapyTokenContentStyled>
@@ -62,7 +87,9 @@ const CapyTokenContent = (props: PopupProps) => {
           <Button $mode="cancel" onClick={() => props?.setShow(false)}>
             Cancel
           </Button>
-          <Button>Ok! Let&apos;s give me CapyTokens</Button>
+          <Button onClick={handleGiveAllCapiesButton}>
+            Ok! Let&apos;s give me CapyTokens
+          </Button>
         </div>
       </CapyTokenContentStyled>
     </>

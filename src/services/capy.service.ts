@@ -1,3 +1,4 @@
+import { WalletContextState } from "@suiet/wallet-kit";
 import axios from "axios";
 
 export const getObject = async (objectId: string) => {
@@ -74,4 +75,32 @@ export const getCapiesList = async (address: string): Promise<Array<any>> => {
       }
     })
   );
+};
+
+export const exchangeCapy = async (
+  wallet: WalletContextState,
+  capyList: string[]
+) => {
+  try {
+    if (wallet.connected) {
+      const result = await wallet.signAndExecuteTransaction({
+        transaction: {
+          kind: "moveCall",
+          data: {
+            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+            module: "cpwtoken",
+            function: "exchange_tokens_for_capy",
+            typeArguments: [],
+            arguments: [capyList, process.env.NEXT_PUBLIC_RESERVE_ID as string],
+            gasBudget: 10000,
+          },
+        },
+      });
+      console.log("exchange result", result);
+      return result;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };

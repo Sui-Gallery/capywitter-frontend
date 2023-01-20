@@ -1,6 +1,8 @@
 import Button from "@/styles/button";
+import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
-import { useState } from "react";
+import { JsonRpcProvider } from "@mysten/sui.js";
+import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
 import Popup from "../popup";
@@ -83,27 +85,64 @@ const FeedStyled = styled.div`
 
 const FeedSection = () => {
   const [popupShow, setPopupShow] = useState(false);
+  const [capySlots, setCapySlots] = useState<Slot[]>([]);
+
+  const initFeed = useCallback(async () => {
+    const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    const slotObjects = process.env.NEXT_PUBLIC_TWITTER_ID
+      ? await sui_provider.getObjectsOwnedByObject(
+          process.env.NEXT_PUBLIC_TWITTER_ID
+        )
+      : [];
+    let slots = await Promise.all(
+      slotObjects.map(async (slotObj) => {
+        const rawSlot: any = await sui_provider!.getObject(slotObj.objectId);
+        // ts claims there is no such data, probably wrong typing by library - agreed
+        const fields = rawSlot.details?.data?.fields.value.fields;
+        return {
+          edited_by: fields.edited_by,
+          index: fields.index as number,
+          minimum_fee: fields.minimum_fee,
+          text: fields.text,
+        } as Slot;
+      })
+    );
+    slots = slots.sort((a: Slot, b: Slot): number => {
+      if (a.index < b.index) return -1;
+      else return 1;
+    });
+    console.log(slots);
+    setCapySlots(slots);
+  }, []);
+
+  useEffect(() => {
+    initFeed();
+  }, []);
 
   return (
     <FeedStyled>
       <div className="title">CAPYFEED</div>
       <AvailabilityText />
       <div className="feeds-con">
-        {Array.from({ length: 10 }).map((e, index) => (
+        {capySlots.map((slot, index) => (
           <div className="feed-item" key={"feed-item_" + index}>
             <div className="feed-head">
-              <div className="left">capyboard: no {index + 1}</div>
-              <div className="right">owner: 0x342….ab4gd</div>
+              <div className="left">capyboard: no {slot.index + 1}</div>
+              <div className="right">
+                owner: {slot.edited_by.substring(0, 4)}….
+                {slot.edited_by.substring(
+                  slot.edited_by.length - 4,
+                  slot.edited_by.length
+                )}
+              </div>
             </div>
             <div className="feed-content">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nesciunt
-              reprehenderit libero cumque adipisci cum inventore recusandae
-              laudantium ?
+              {slot.text || "This field is not taken, yet"}
             </div>
             <div className="feed-footer">
               <div className="feed-info">
                 <span className="info-title">current min box price:</span>
-                <span>100 CAPYTOKEN</span>
+                <span>{slot.minimum_fee} CAPYTOKEN</span>
               </div>
               <Button
                 $mode="feed-button"
