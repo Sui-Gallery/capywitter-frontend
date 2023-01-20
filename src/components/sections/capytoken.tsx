@@ -19,7 +19,6 @@ TODO: 2- initiliaze the provider in the most optimal place, what is the best pra
 */
 
 
-const RPC_URL = "https://fullnode.devnet.sui.io:443"
 const PACKAGE_ID= "0xcdb8273f36693fd4349528ec75f65547e285d3e9"
 const TWITTER_ID= "0xddc1e4772cf4ea2258fb3c0e760e95dafda8f580"
 const RESERVE_ID= "0x7c8dc9b5a4c5526f4e6f8eb9250eec0e4847f0cd"
@@ -89,22 +88,24 @@ const CapyTokenSection = () => {
 
   const provider = useRef<JsonRpcProvider>()
 
-  const exchangeCapy = useCallback(async () => {
-    if (wallet.connected && didMount.current !== true) {
+  const exchangeCapy = useCallback(async (capyList: string[]) => {
+    console.log(capyList)
+    if (wallet.connected) {
       didMount.current = true;
       const result = await wallet.signAndExecuteTransaction({
         transaction: {
           kind: "moveCall",
           data: {
-            packageObjectId: "0x38e9a153cde164e1ff1e6aff5b8b93f836b8ba75",
-            module: "NFT",
-            function: "mint",
+            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+            module: "cpwtoken",
+            function: "exchange_tokens_for_capy",
             typeArguments: [],
-            arguments: [],
+            arguments: [capyList, process.env.NEXT_PUBLIC_RESERVE_ID as string],
             gasBudget: 10000,
           },
         },
       });
+      // todo result handling
     }
   }, [wallet]);
 
@@ -124,9 +125,9 @@ const CapyTokenSection = () => {
   }, [wallet.address, wallet.connected]);
 
   const initWeb3 = useCallback(async () => {
-    const sui_provider = new JsonRpcProvider(RPC_URL);
+    const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
     provider.current = sui_provider
-    const slotObjects = await provider.current.getObjectsOwnedByObject(TWITTER_ID);
+    const slotObjects = process.env.NEXT_PUBLIC_PACKAGE_ID ? await provider.current.getObjectsOwnedByObject(process.env.NEXT_PUBLIC_PACKAGE_ID) : [];
     let slots = await Promise.all(slotObjects.map(async(slotObj) => {
       const rawSlot = await provider.current!.getObject(slotObj.objectId)
       // ts claims there is no such data, probably wrong typing by library
