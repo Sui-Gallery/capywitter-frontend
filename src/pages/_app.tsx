@@ -7,7 +7,6 @@ import Head from "next/head";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
       <WalletProvider>
         <Head>
           <title>CapyWitter</title>
@@ -38,6 +37,5 @@ export default function App({ Component, pageProps }: AppProps) {
         <Header />
         <Component {...pageProps} />
       </WalletProvider>
-    </>
   );
 }

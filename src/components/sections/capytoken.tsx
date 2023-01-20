@@ -1,12 +1,28 @@
 import { getCapiesList } from "@/services/capy.service";
 import Button from "@/styles/button";
-import { useWallet, useSuiProvider } from "@suiet/wallet-kit";
+import { useWallet } from "@suiet/wallet-kit";
 import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
 import CapyItem from "../capy-item";
 import Popup from "../popup";
+import { JsonRpcProvider, Network } from '@mysten/sui.js';
+
+/*
+TODO: 1- change const vars with env vars
+*/
+
+/*
+TODO: 2- initiliaze the provider in the most optimal place, what is the best practice, redux, out of component or inside component in useRef etc.
+*/
+
+
+const RPC_URL = "https://fullnode.devnet.sui.io:443"
+const PACKAGE_ID= "0xcdb8273f36693fd4349528ec75f65547e285d3e9"
+const TWITTER_ID= "0xddc1e4772cf4ea2258fb3c0e760e95dafda8f580"
+const RESERVE_ID= "0x7c8dc9b5a4c5526f4e6f8eb9250eec0e4847f0cd"
+
 
 const CapyTokenSectionStyled = styled.div`
   .capy-list {
@@ -62,6 +78,8 @@ const CapyTokenSectionStyled = styled.div`
   }
 `;
 
+const provider = new JsonRpcProvider(RPC_URL)
+
 const CapyTokenSection = () => {
   const [popupShow, setPopupShow] = useState(false);
   const wallet = useWallet();
@@ -102,6 +120,10 @@ const CapyTokenSection = () => {
       setUserCapies(cp);
     }
   }, [wallet.address, wallet.connected]);
+
+  const initWeb3 = useCallback(async () => {
+    const twitterObject = await provider.getObject(TWITTER_ID);
+  }, [])
 
   useEffect(() => {
     initUserCapies();
