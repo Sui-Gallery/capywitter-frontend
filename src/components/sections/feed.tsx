@@ -3,12 +3,10 @@ import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
 import { JsonRpcProvider } from "@mysten/sui.js";
 import { useWallet } from "@suiet/wallet-kit";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
 import Popup from "../popup";
-import axios from "axios";
-import { GAS_FEE } from "@/utils/constants";
 
 const FeedStyled = styled.div`
   .feeds-con {
@@ -89,6 +87,8 @@ const FeedStyled = styled.div`
 const FeedSection = () => {
   const [popupShow, setPopupShow] = useState(false);
   const [capySlots, setCapySlots] = useState<Slot[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const wallet = useWallet();
 
   const initFeed = useCallback(async () => {
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
@@ -114,198 +114,68 @@ const FeedSection = () => {
       if (a.index < b.index) return -1;
       else return 1;
     });
-    console.log(slots);
+    console.log("Slots:", slots);
     setCapySlots(slots);
   }, []);
 
   useEffect(() => {
     initFeed();
-  }, []);
-  const wallet = useWallet();
+  }, [initFeed]);
 
-  const provider = useRef<JsonRpcProvider>();
-
-  const initWeb3 = useCallback(async () => {
-    provider.current = new JsonRpcProvider(process.env.NEXT_PUBLIC_PACKAGE_ID);
-  }, []);
-
-  useEffect(() => {
-    initWeb3();
-  }, []);
-
-  useEffect(() => {
-    //publishText("developing sui gallery", 12, 2) this function executes the transactions
-  }, [wallet]);
-
-  /* utils functions */
-
-  // coinAmt > requiredAmt
-
-  const getCpwBalance = async (address: string) => {
-    const tokenType =
-      process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN";
-    const balance: any = await axios({
-      method: "post",
-      url: process.env.NEXT_PUBLIC_RPC_URL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "sui_getBalance",
-        params: [address, tokenType],
-      },
-    })
-      .then((res: any) => {
-        return res?.data?.result.totalBalance;
-      })
-      .catch((err) => {
-        console.log("ERROR: Couldn't fetch objects", err);
-        return "0";
-      });
-    console.log(balance);
-    return balance;
+  const handleBuyBoxClick = (selectedSlot: Slot) => {
+    setSelectedSlot(selectedSlot);
+    setPopupShow(true);
   };
 
-  const splitCoin = async (
-    signerAddress: string,
-    coinId: string,
-    splitAmts: number[]
-  ) => {
-    if (wallet.connected) {
-      const result = await wallet.signAndExecuteTransaction({
-        transaction: {
-          kind: "splitCoin",
-          data: {
-            coinObjectId: coinId,
-            splitAmounts: splitAmts,
-            gasBudget: GAS_FEE,
-          },
-        },
-      });
-      console.log("Result of split txn");
-      console.log(result);
-    }
-  };
-
-  const mergeCoins = async () => {
-    // test commit
-    console.log("tes");
-  };
-
-  // component function
-  const publishText = async (text: string, offer: number, index: number) => {
-    if (wallet.connected && wallet.address) {
-      console.log(await wallet.getPublicKey());
-      // First get all the tokens owned by wallet
-      const address = wallet.address;
-      const tokenType =
-        process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN";
-
-      console.log(address);
-      console.log(tokenType);
-
-      const cpwTokens: any[] = await axios({
-        method: "post",
-        url: process.env.NEXT_PUBLIC_RPC_URL,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: {
-          jsonrpc: "2.0",
-          id: 1,
-          method: "sui_getCoins",
-          params: [address, tokenType],
-        },
-      })
-        .then((res: any) => {
-          return res?.data?.result.data;
-        })
-        .catch((err) => {
-          console.log("ERROR: Couldn't fetch objects", err);
-          return [];
-        });
-
-      console.log(cpwTokens);
-      let singleTokenEnough: boolean = false;
-      let tokenToUse = "";
-      let usedBalance = -1;
-      cpwTokens.forEach((token) => {
-        if (token.balance >= offer) {
-          singleTokenEnough = true;
-          tokenToUse = token.coinObjectId;
-          usedBalance = token.balance;
-        }
-      });
-
-      if (singleTokenEnough) {
-        if (usedBalance == offer) {
-          // dont split directly publish
-        } else {
-          await splitCoin(address, tokenToUse, [usedBalance - offer]);
-        }
-      } else {
-        // coins should be merged and tokenToUse should be set
-      }
-
-      const result = wallet.signAndExecuteTransaction({
-        transaction: {
-          kind: "moveCall",
-          data: {
-            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
-            module: "twitter",
-            function: "publish_text_by_index",
-            typeArguments: [],
-            arguments: [
-              process.env.NEXT_PUBLIC_TWITTER_ID as string,
-              tokenToUse,
-              text,
-              index,
-            ],
-            gasBudget: 10000,
-          },
-        },
-      });
-    }
-  };
+  const renderCapySlots = useMemo(() => {
+    return capySlots.map((slot, index) => (
+      <div className="feed-item" key={"feed-item_" + index}>
+        <div className="feed-head">
+          <div className="left">capyboard: no {slot.index}</div>
+          <div className="right">
+            owner: {slot.edited_by.substring(0, 4)}….
+            {slot.edited_by.substring(
+              slot.edited_by.length - 4,
+              slot.edited_by.length
+            )}
+          </div>
+        </div>
+        <div className="feed-content">
+          {slot.text || "This field is not taken, yet"}
+        </div>
+        <div className="feed-footer">
+          <div className="feed-info">
+            <span className="info-title">current min box price:</span>
+            <span>{slot.minimum_fee} CAPYTOKEN</span>
+          </div>
+          {wallet.address === slot.edited_by ? (
+            ""
+          ) : (
+            <Button
+              $mode="feed-button"
+              onClick={() => !isMobile() && handleBuyBoxClick(slot)}
+            >
+              Buy This Box!
+            </Button>
+          )}
+        </div>
+      </div>
+    ));
+  }, [capySlots]);
 
   return (
     <FeedStyled>
       <div className="title">CAPYFEED</div>
       <AvailabilityText />
-      <div className="feeds-con">
-        {capySlots.map((slot, index) => (
-          <div className="feed-item" key={"feed-item_" + index}>
-            <div className="feed-head">
-              <div className="left">capyboard: no {slot.index + 1}</div>
-              <div className="right">
-                owner: {slot.edited_by.substring(0, 4)}….
-                {slot.edited_by.substring(
-                  slot.edited_by.length - 4,
-                  slot.edited_by.length
-                )}
-              </div>
-            </div>
-            <div className="feed-content">
-              {slot.text || "This field is not taken, yet"}
-            </div>
-            <div className="feed-footer">
-              <div className="feed-info">
-                <span className="info-title">current min box price:</span>
-                <span>{slot.minimum_fee} CAPYTOKEN</span>
-              </div>
-              <Button
-                $mode="feed-button"
-                onClick={() => !isMobile() && setPopupShow(true)}
-              >
-                Buy This Box!
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Popup content="capyboard" setShow={setPopupShow} show={popupShow} />
+      <div className="feeds-con">{renderCapySlots}</div>
+      <Popup
+        content="capyboard"
+        setShow={setPopupShow}
+        show={popupShow}
+        setSelectedSlot={setSelectedSlot}
+        selectedSlot={selectedSlot}
+        initFeed={initFeed}
+      />
     </FeedStyled>
   );
 };

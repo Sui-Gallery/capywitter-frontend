@@ -1,3 +1,4 @@
+import { GAS_FEE } from "@/utils/constants";
 import { WalletContextState } from "@suiet/wallet-kit";
 import axios from "axios";
 
@@ -102,5 +103,142 @@ export const exchangeCapy = async (
   } catch (err) {
     console.log(err);
     return false;
+  }
+};
+
+export const getCpwBalance = async (address: string) => {
+  const tokenType =
+    process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN";
+  const balance: any = await axios({
+    method: "post",
+    url: process.env.NEXT_PUBLIC_RPC_URL,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "sui_getBalance",
+      params: [address, tokenType],
+    },
+  })
+    .then((res: any) => {
+      return res?.data?.result.totalBalance;
+    })
+    .catch((err) => {
+      console.log("ERROR: Couldn't fetch objects", err);
+      return "0";
+    });
+  console.log(balance);
+  return balance;
+};
+
+export const splitCoin = async (
+  wallet: WalletContextState,
+  signerAddress: string,
+  coinId: string,
+  splitAmts: number[]
+) => {
+  if (wallet.connected) {
+    const result = await wallet.signAndExecuteTransaction({
+      transaction: {
+        kind: "splitCoin",
+        data: {
+          coinObjectId: coinId,
+          splitAmounts: splitAmts,
+          gasBudget: GAS_FEE,
+        },
+      },
+    });
+    console.log("Result of split txn");
+    console.log(result);
+  }
+};
+
+export const mergeCoins = async () => {
+  // test commit
+  console.log("tes");
+};
+
+// component function
+export const publishText = async (
+  wallet: WalletContextState,
+  text: string,
+  offer: number,
+  index: number
+) => {
+  if (wallet.connected && wallet.address) {
+    console.log(await wallet.getPublicKey());
+    // First get all the tokens owned by wallet
+    const address = wallet.address;
+    const tokenType =
+      process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN";
+
+    console.log(address);
+    console.log(tokenType);
+
+    const cpwTokens: any[] = await axios({
+      method: "post",
+      url: process.env.NEXT_PUBLIC_RPC_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sui_getCoins",
+        params: [address, tokenType],
+      },
+    })
+      .then((res: any) => {
+        return res?.data?.result.data;
+      })
+      .catch((err) => {
+        console.log("ERROR: Couldn't fetch objects", err);
+        return [];
+      });
+
+    console.log("cpwTokens", cpwTokens);
+    let singleTokenEnough: boolean = false;
+    let tokenToUse = "";
+    let usedBalance = -1;
+    cpwTokens.forEach((token) => {
+      if (token.balance >= offer) {
+        singleTokenEnough = true;
+        tokenToUse = token.coinObjectId;
+        usedBalance = token.balance;
+      }
+    });
+
+    if (singleTokenEnough) {
+      if (usedBalance == offer) {
+        // dont split directly publish
+      } else {
+        await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
+      }
+    } else {
+      // coins should be merged and tokenToUse should be set
+    }
+
+    const result = await wallet.signAndExecuteTransaction({
+      transaction: {
+        kind: "moveCall",
+        data: {
+          packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+          module: "twitter",
+          function: "publish_text_by_index",
+          typeArguments: [],
+          arguments: [
+            process.env.NEXT_PUBLIC_TWITTER_ID as string,
+            tokenToUse,
+            text,
+            index,
+          ],
+          gasBudget: 10000,
+        },
+      },
+    });
+
+    return result;
   }
 };

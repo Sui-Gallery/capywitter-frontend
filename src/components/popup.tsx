@@ -1,10 +1,13 @@
-import { exchangeCapy } from "@/services/capy.service";
+import { exchangeCapy, publishText } from "@/services/capy.service";
 import Button from "@/styles/button";
+import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
 import { useWallet } from "@suiet/wallet-kit";
 import Image from "next/image";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+
+// TODO; Seperate popups in this file under popups folder
 
 type PopupProps = {
   show: boolean;
@@ -12,6 +15,10 @@ type PopupProps = {
   content: "capyboard" | "capytoken";
   setUserCapies?: any;
   userCapies?: any[];
+  setSelectedSlot?: any;
+  selectedSlot?: Slot | null;
+  minOffer?: number;
+  initFeed?: any;
 };
 
 const CapyTokenContentStyled = styled.div`
@@ -168,34 +175,83 @@ const CapyBoardContentStyled = styled.div`
 `;
 
 const CapyBoardContent = (props: PopupProps) => {
+  const [textContent, setTextContent] = useState("");
+  const [offerPrice, setOfferPrice] = useState(
+    Number(props?.selectedSlot?.minimum_fee)
+      ? Number(props?.selectedSlot?.minimum_fee) + 1
+      : 0
+  );
+  const wallet = useWallet();
+
+  useEffect(() => {
+    if (!props?.selectedSlot) {
+      alert("Problem occured while accessing slot");
+      handleCancelClick();
+    }
+  }, []);
+
+  const handleSubmitClick = async () => {
+    const publishResult = await publishText(
+      wallet,
+      textContent,
+      offerPrice,
+      props?.selectedSlot?.index as number
+    );
+
+    console.log("publishResult", publishResult);
+
+    if (publishResult?.effects?.status?.status === "success") {
+      alert("Successfuly bought the box!");
+      props?.initFeed && props?.initFeed();
+      handleCancelClick();
+    }
+  };
+
+  const handleCancelClick = () => {
+    props?.setShow(false);
+    props?.setSelectedSlot(null);
+  };
+
   return (
     <>
       <CapyBoardContentStyled>
-        <div className="popup-title">CapyToken</div>
+        <div className="popup-title">CapyBoard</div>
         <div className="popup-desc">
           We will working on edit button, always. However, you can only change
           the capyboard once.
         </div>
         <div className="form-con">
           <label>Enter Your Text</label>
-          <textarea maxLength={180}></textarea>
+          <textarea
+            maxLength={180}
+            onChange={(event) => setTextContent(event.target.value)}
+          ></textarea>
           <div className="price-con">
-            Current Price : <span className="price-text">100 Capy Token</span>
+            Current Price :{" "}
+            <span className="price-text">
+              {props?.selectedSlot?.minimum_fee} Capy Token
+            </span>
           </div>
           <div className="oneline-input">
             <label>Your Offering</label>
             <input
               type="number"
-              min={0}
+              min={
+                Number(props?.selectedSlot?.minimum_fee)
+                  ? Number(props?.selectedSlot?.minimum_fee) + 1
+                  : 0
+              }
+              value={offerPrice}
               placeholder="Enter a Price Higher Than Current Price"
+              onChange={(event) => setOfferPrice(Number(event.target.value))}
             />
           </div>
         </div>
         <div className="buttons">
-          <Button $mode="cancel" onClick={() => props?.setShow(false)}>
+          <Button $mode="cancel" onClick={() => handleCancelClick()}>
             Cancel
           </Button>
-          <Button>Ok! Let&apos;s give me CapyTokens</Button>
+          <Button onClick={handleSubmitClick}>Shine on the CapyBoard</Button>
         </div>
       </CapyBoardContentStyled>
     </>
@@ -263,6 +319,7 @@ const Popup = (props: PopupProps) => {
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e?.target === overlayRef?.current) {
       props.setShow(false);
+      props?.setSelectedSlot && props?.setSelectedSlot(null);
     }
   };
 
@@ -270,6 +327,7 @@ const Popup = (props: PopupProps) => {
     if (props.show === true) {
       if (isMobile() === true) {
         props.setShow(false);
+        props?.setSelectedSlot && props?.setSelectedSlot(null);
         return;
       }
       document.body.setAttribute("style", "overflow:hidden");

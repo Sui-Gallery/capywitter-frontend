@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Logo from "./logo";
-import { ConnectButton } from "@suiet/wallet-kit";
+import { ConnectButton, useWallet } from "@suiet/wallet-kit";
 import { isMobile } from "@/utils/utils";
+import { getCapiesList, getCpwBalance } from "@/services/capy.service";
 
 const HeaderStyled = styled.div`
   display: flex;
@@ -39,6 +40,38 @@ const HeaderStyled = styled.div`
     }
 
     &.onlymobile {
+      display: none;
+    }
+  }
+
+  .your-wallet-info {
+    z-index: -1;
+    position: absolute;
+    width: 223px;
+    font-size: 16px;
+    font-weight: bold;
+    right: 10px;
+    top: 60px;
+  }
+
+  .button-con {
+    position: relative;
+  }
+
+  .your-wallet-title {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #979797;
+    margin-bottom: 6px;
+  }
+
+  .your-wallet-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px auto;
+  }
+
+  @media screen and (max-width: 1000px) {
+    .your-wallet-info {
       display: none;
     }
   }
@@ -79,12 +112,26 @@ const HeaderStyled = styled.div`
 
   .wkit-button,
   .wkit-connected-container {
-    width: 240px;
+    width: 250px;
   }
 `;
 
 const Header = () => {
   const router = useRouter();
+  const wallet = useWallet();
+  const [capybaras, setCapybaras] = useState(0);
+  const [capyTokens, setCapyTokens] = useState(0);
+
+  const initWalletInfo = useCallback(async () => {
+    if (wallet.connected && wallet.address) {
+      setCapybaras((await getCapiesList(wallet.address))?.length || 0);
+      setCapyTokens((await getCpwBalance(wallet.address)) || 0);
+    }
+  }, [wallet]);
+
+  useEffect(() => {
+    initWalletInfo();
+  }, [initWalletInfo]);
 
   return (
     <HeaderStyled>
@@ -114,7 +161,24 @@ const Header = () => {
           Hotel Capyfornia
         </Link>
       </div>
-      {!isMobile() && <ConnectButton />}
+      <div className="button-con">
+        {!isMobile() && <ConnectButton />}
+        {wallet.connected && (
+          <div className="your-wallet-info">
+            <div className="your-wallet-title">Your Wallet</div>
+            <div className="your-wallet-items">
+              <div className="your-wallet-item">
+                <div className="your-wallet-item-title">Your Capybaras</div>
+                <div className="your-wallet-item-value">{capybaras}</div>
+              </div>
+              <div className="your-wallet-item">
+                <div className="your-wallet-item-title">Your CapyTokens</div>
+                <div className="your-wallet-item-value">{capyTokens}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </HeaderStyled>
   );
 };
