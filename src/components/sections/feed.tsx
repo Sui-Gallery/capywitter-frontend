@@ -107,6 +107,32 @@ const FeedSection = () => {
 
   // coinAmt > requiredAmt
 
+  const getCpwBalance = async (address: string) => {
+    const tokenType = process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN"
+    const balance: any = await axios({
+      method: "post",
+      url: process.env.NEXT_PUBLIC_RPC_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sui_getBalance",
+        params: [address, tokenType],
+      },
+    })
+      .then((res: any) => {
+        return res?.data?.result.totalBalance;
+      })
+      .catch((err) => {
+        console.log("ERROR: Couldn't fetch objects", err);
+        return "0";
+      });
+      console.log(balance)
+      return balance
+  }
+
   const splitCoin = async (signerAddress: string, coinId: string, splitAmts: number[]) => {
 
     if (wallet.connected) {
