@@ -9,14 +9,7 @@ import CapyItem from "../capy-item";
 import Popup from "../popup";
 import { JsonRpcProvider, Network } from "@mysten/sui.js";
 import { Slot } from "@/types/Slot";
-
-/*
-TODO: 1- change const vars with env vars
-*/
-
-/*
-TODO: 2- initiliaze the provider in the most optimal place, what is the best practice, redux, out of component or inside component in useRef etc.
-*/
+import { GAS_FEE } from "@/utils/constants";
 
 const CapyTokenSectionStyled = styled.div`
   .capy-list {
