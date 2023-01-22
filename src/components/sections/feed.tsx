@@ -100,76 +100,28 @@ const FeedSection = () => {
   }, [])
 
   useEffect(() => {
-    publishText("developing sui gallery", 12, 2)
+    //publishText("developing sui gallery", 12, 2) this function executes the transactions
   }, [wallet])
 
   /* utils functions */
 
   // coinAmt > requiredAmt
 
-  const createSplitTxn = async (signerAddress: string, coinId: string, splitAmts: number[]) => {
-    // first find a gas object
-    const suiCoins = await axios({
-      method: "post",
-      url: process.env.NEXT_PUBLIC_RPC_URL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "sui_getCoins",
-        params: [signerAddress],
-      },
-    }).then((res: any) => {
-      return res?.data?.result.data;
-    })
-    .catch((err) => {
-      console.log("ERROR: Couldn't fetch objects", err);
-      return [];
-    });
+  const splitCoin = async (signerAddress: string, coinId: string, splitAmts: number[]) => {
 
-    let gasToUseId: string = ""
-    for (let gasObj of suiCoins) {
-      if (gasObj.balance >= GAS_FEE) {
-        gasToUseId = gasObj.coinObjectId
-      }
-    }
-
-    if (gasToUseId == "") {
-      console.error("Insufficient gas")
-      // todo handle ui
-    }
-
-    const splitTxn = await axios({
-      method: "post",
-      url: process.env.NEXT_PUBLIC_RPC_URL,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "sui_splitCoin",
-        params: [signerAddress, coinId, splitAmts, gasToUseId, 10000],
-      },
-    })
-      .then((res: any) => {
-        console.log(res)
-        return res?.data?.result;
-      })
-      .catch((err) => {
-        console.log("ERROR: Couldn't fetch objects", err);
-        return null;
-    });
-    console.log(splitTxn)
-    return splitTxn
-  }
-
-  const splitCoin = async (txnBytes: any) => {
     if (wallet.connected) {
-      const txn = await wallet.signAndExecuteTransaction(txnBytes)
-      console.log(txn)
+      const result = await wallet.signAndExecuteTransaction({
+        transaction: {
+          kind: "splitCoin",
+          data: {
+            coinObjectId: coinId,
+            splitAmounts: splitAmts,
+            gasBudget: GAS_FEE
+          },
+        },
+      })
+      console.log("Result of split txn")
+      console.log(result)
     }
   }
 
@@ -226,8 +178,7 @@ const FeedSection = () => {
           if (usedBalance == offer) {
             // dont split directly publish
           } else {
-            const txnBytes = await createSplitTxn(address, tokenToUse, [usedBalance - offer])
-            await splitCoin(txnBytes)
+            await splitCoin(address, tokenToUse, [usedBalance - offer])
           }
         } else {
           // coins should be merged and tokenToUse should be set
