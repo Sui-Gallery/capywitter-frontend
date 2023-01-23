@@ -126,7 +126,7 @@ const Header = () => {
   const wallet = useWallet();
   const [capybaras, setCapybaras] = useState(0);
   const [capyTokens, setCapyTokens] = useState(0);
-  const didMount = useRef(false);
+  //const didMount = useRef(false);
 
   const initWalletInfo = useCallback(async () => {
     if (wallet.connected && wallet.address) {
@@ -135,6 +135,7 @@ const Header = () => {
     }
   }, [wallet]);
 
+  /*
   useEffect(() => {
     if (didMount.current && wallet.connected && wallet.address) {
       return;
@@ -144,11 +145,17 @@ const Header = () => {
     subscribeExchangeEvents(
       process.env.NEXT_PUBLIC_PACKAGE_ID,
       sui_provider,
-      (e) => {
-        console.log("EVENT", e);
+      async (e) => {
+        if (wallet.connected && wallet.address) {
+          setCapybaras((await getCapiesList(wallet.address))?.length || 0);
+          setCapyTokens((await getCpwBalance(wallet.address)) || 0);
+        } else {
+          console.log("wallet is not connected");
+        }
       }
     );
   }, [wallet.address, wallet.connected]);
+  */
 
   useEffect(() => {
     initWalletInfo();

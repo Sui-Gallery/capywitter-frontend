@@ -1,9 +1,10 @@
+import { subscribePublishEvents } from "@/services/capy.service";
 import Button from "@/styles/button";
 import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
 import { JsonRpcProvider } from "@mysten/sui.js";
 import { useWallet } from "@suiet/wallet-kit";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
 import Popup from "../popup";
@@ -89,6 +90,7 @@ const FeedSection = () => {
   const [capySlots, setCapySlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const wallet = useWallet();
+  //const didMount = useRef(false);
 
   const initFeed = useCallback(async () => {
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
@@ -121,6 +123,28 @@ const FeedSection = () => {
   useEffect(() => {
     initFeed();
   }, [initFeed]);
+
+  /*
+
+  useEffect(() => {
+    if (didMount.current && wallet.connected && wallet.address) {
+      return;
+    }
+    console.log(wallet.address);
+    const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    subscribePublishEvents(
+      process.env.NEXT_PUBLIC_PACKAGE_ID,
+      sui_provider,
+      async (e) => {
+        if (wallet.connected && wallet.address) {
+          initFeed();
+        } else {
+          console.log("wallet is not connected");
+        }
+      }
+    );
+  }, [wallet.address, wallet.connected]);
+  */
 
   const handleBuyBoxClick = (selectedSlot: Slot) => {
     setSelectedSlot(selectedSlot);
