@@ -2,6 +2,22 @@ import { GAS_FEE } from "@/utils/constants";
 import { WalletContextState } from "@suiet/wallet-kit";
 import axios from "axios";
 import { any } from "superstruct";
+import { JsonRpcProvider, SuiEventEnvelope } from "@mysten/sui.js";
+import { executionAsyncResource } from "async_hooks";
+
+export const subscribePublishEvents = async (packageId: string, provider: JsonRpcProvider, cb: (event: SuiEventEnvelope) => void) => {
+  const eventType = packageId + "::cpwtoken::" + "ExchangeEvent";
+  const subscriptionId = await provider.subscribeEvent({
+    MoveEventType: eventType
+  }, cb)
+}
+
+export const subscribeExchangeEvents = async (packageId: string, provider: JsonRpcProvider, cb: (event: SuiEventEnvelope) => void) => {
+  const eventType = packageId + "::twitter::" + "PublishEvent";
+  const subscriptionId = await provider.subscribeEvent({
+    MoveEventType: eventType
+  }, cb)
+}
 
 export const getObject = async (objectId: string) => {
   if (!objectId) return false;
