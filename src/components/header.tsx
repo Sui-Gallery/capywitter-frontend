@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Logo from "./logo";
 import { ConnectButton, useWallet } from "@suiet/wallet-kit";
 import { isMobile } from "@/utils/utils";
-import { getCapiesList, getCpwBalance } from "@/services/capy.service";
+import {
+  getCapiesList,
+  getCpwBalance,
+  subscribeExchangeEvents,
+} from "@/services/capy.service";
+import { JsonRpcProvider } from "@mysten/sui.js";
 
 const HeaderStyled = styled.div`
   display: flex;
@@ -121,6 +126,7 @@ const Header = () => {
   const wallet = useWallet();
   const [capybaras, setCapybaras] = useState(0);
   const [capyTokens, setCapyTokens] = useState(0);
+  const didMount = useRef(false);
 
   const initWalletInfo = useCallback(async () => {
     if (wallet.connected && wallet.address) {
@@ -128,6 +134,21 @@ const Header = () => {
       setCapyTokens((await getCpwBalance(wallet.address)) || 0);
     }
   }, [wallet]);
+
+  useEffect(() => {
+    if (didMount.current && wallet.connected && wallet.address) {
+      return;
+    }
+    console.log(wallet.address);
+    const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    subscribeExchangeEvents(
+      process.env.NEXT_PUBLIC_PACKAGE_ID,
+      sui_provider,
+      (e) => {
+        console.log("EVENT", e);
+      }
+    );
+  }, [wallet.address, wallet.connected]);
 
   useEffect(() => {
     initWalletInfo();
