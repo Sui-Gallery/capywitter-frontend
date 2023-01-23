@@ -1,4 +1,8 @@
-import { exchangeCapy, publishText } from "@/services/capy.service";
+import {
+  exchangeCapy,
+  publishText,
+  getCpwBalance,
+} from "@/services/capy.service";
 import Button from "@/styles/button";
 import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
@@ -46,9 +50,12 @@ const CapyTokenContentStyled = styled.div`
 
 const CapyTokenContent = (props: PopupProps) => {
   const wallet = useWallet();
+  const availableCapybaras = props?.userCapies?.length || 0;
+  const capytokensWillReceived = props?.userCapies?.length
+    ? props?.userCapies?.length * 10
+    : 0;
 
   const handleGiveAllCapiesButton = async () => {
-    console.log(1, props.userCapies);
     const allCapyIds =
       props?.userCapies?.map((capy) => capy?.details?.reference?.objectId) ||
       [];
@@ -84,11 +91,11 @@ const CapyTokenContent = (props: PopupProps) => {
         </div>
         <div className="capytoken-info">
           <div className="info-title">Available CapyBaras</div>
-          <div className="info-value">10</div>
+          <div className="info-value">{availableCapybaras}</div>
         </div>
         <div className="capytoken-info">
           <div className="info-title">CapyTokens Will Be Received</div>
-          <div className="info-value">100</div>
+          <div className="info-value">{capytokensWillReceived}</div>
         </div>
         <div className="buttons">
           <Button $mode="cancel" onClick={() => props?.setShow(false)}>
@@ -191,6 +198,14 @@ const CapyBoardContent = (props: PopupProps) => {
   }, []);
 
   const handleSubmitClick = async () => {
+    if (!wallet.address) return;
+    const user_balance = await getCpwBalance(wallet.address);
+
+    if (offerPrice > user_balance) {
+      alert("You don't have enough CapyTokens");
+      return;
+    }
+
     const publishResult = await publishText(
       wallet,
       textContent,

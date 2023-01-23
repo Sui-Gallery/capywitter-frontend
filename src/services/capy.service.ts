@@ -158,7 +158,6 @@ export const getCpwBalance = async (address: string) => {
       console.log("ERROR: Couldn't fetch objects", err);
       return "0";
     });
-  console.log(balance);
   return balance;
 };
 

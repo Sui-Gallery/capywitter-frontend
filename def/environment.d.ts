@@ -7,6 +7,7 @@ export declare global {
       NEXT_PUBLIC_PACKAGE_ID: string;
       NEXT_PUBLIC_TWITTER_ID: string;
       NEXT_PUBLIC_RESERVE_ID: string;
+      NEXT_PUBLIC_CAPYFORNIA_ID: string;
     }
   }
 }

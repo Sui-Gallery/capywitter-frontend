@@ -1,3 +1,6 @@
+import { getCapiesList } from "@/services/capy.service";
+import { useWallet } from "@suiet/wallet-kit";
+import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import CapyItem from "../capy-item";
 
@@ -20,6 +23,22 @@ const HotelCapyforniaSectionStyled = styled.div`
 `;
 
 const HotelCapyforniaSection = () => {
+  const [capyforniaList, setCapyforniaList] = useState<any[]>([]);
+  const wallet = useWallet();
+
+  const initCapyfornia = useCallback(async () => {
+    if (wallet.connected && wallet.address) {
+      console.log("wallet address", wallet.address);
+
+      const capies = await getCapiesList(process.env.NEXT_PUBLIC_CAPYFORNIA_ID);
+      setCapyforniaList(capies);
+    }
+  }, [wallet.address, wallet.connected]);
+
+  useEffect(() => {
+    initCapyfornia();
+  }, [initCapyfornia]);
+
   return (
     <HotelCapyforniaSectionStyled>
       <div className="title-desc">
@@ -36,21 +55,12 @@ const HotelCapyforniaSection = () => {
         </div>
       </div>
       <div className="capy-list">
-        <CapyItem image_src="/images/capys/blue.png" />
-        <CapyItem image_src="/images/capys/orange.png" />
-        <CapyItem image_src="/images/capys/green.png" />
-        <CapyItem image_src="/images/capys/blue.png" />
-        <CapyItem image_src="/images/capys/orange.png" />
-        <CapyItem image_src="/images/capys/green.png" />
-        <CapyItem image_src="/images/capys/blue.png" />
-        <CapyItem image_src="/images/capys/orange.png" />
-        <CapyItem image_src="/images/capys/green.png" />
-        <CapyItem image_src="/images/capys/blue.png" />
-        <CapyItem image_src="/images/capys/orange.png" />
-        <CapyItem image_src="/images/capys/green.png" />
-        <CapyItem image_src="/images/capys/blue.png" />
-        <CapyItem image_src="/images/capys/orange.png" />
-        <CapyItem image_src="/images/capys/green.png" />
+        {capyforniaList?.map((capy, index) => (
+          <CapyItem
+            key={"capyfornia-item_" + index}
+            image_src={capy?.details?.data?.fields?.url}
+          />
+        ))}
       </div>
     </HotelCapyforniaSectionStyled>
   );
