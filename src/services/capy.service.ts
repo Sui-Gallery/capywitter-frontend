@@ -1,6 +1,7 @@
 import { GAS_FEE } from "@/utils/constants";
 import { WalletContextState } from "@suiet/wallet-kit";
 import axios from "axios";
+import { any } from "superstruct";
 
 export const getObject = async (objectId: string) => {
   if (!objectId) return false;
@@ -217,7 +218,39 @@ export const publishText = async (
         await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
       }
     } else {
-      // coins should be merged and tokenToUse should be set
+      let amountEnough = false
+      let tokenIdx = 0
+      let totalAmt = 0
+      let tokenToMerge: any[] = []
+      while (!amountEnough) {
+        if (tokenIdx >= cpwTokens.length) {
+          console.error("Not enough budget")
+          //TODO buraya girmemesinden emin olmalısın ramazan başta balance >= offer olmalı
+        }
+        let curToken = cpwTokens[index]
+        totalAmt += curToken.balance
+        tokenToMerge.push(curToken)
+        tokenIdx += 1
+        if (totalAmt >= offer) {
+          amountEnough = true
+        }
+      }
+
+      let primaryToken = cpwTokens[0]
+      for (let token of cpwTokens.slice(1)) {
+        const res = await wallet.signAndExecuteTransaction({
+          transaction: {
+            kind: "mergeCoin",
+            data: {
+              primaryCoin: primaryToken.coinObjectId,
+              coinToMerge: token.coinObjectId,
+              gasBudget: GAS_FEE,
+            }
+          }
+        })
+      }
+      tokenToUse = primaryToken
+
     }
 
     const result = await wallet.signAndExecuteTransaction({
