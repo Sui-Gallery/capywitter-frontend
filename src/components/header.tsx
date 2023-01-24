@@ -135,11 +135,8 @@ const Header = () => {
     }
   }, [wallet]);
 
-  /*
+  
   useEffect(() => {
-    if (didMount.current && wallet.connected && wallet.address) {
-      return;
-    }
     console.log(wallet.address);
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
     subscribeExchangeEvents(
@@ -155,7 +152,7 @@ const Header = () => {
       }
     );
   }, [wallet.address, wallet.connected]);
-  */
+ 
 
   useEffect(() => {
     initWalletInfo();
