@@ -90,7 +90,7 @@ const FeedSection = () => {
   const [capySlots, setCapySlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const wallet = useWallet();
-  //const didMount = useRef(false);
+  const didMount = useRef(false);
 
   const initFeed = useCallback(async () => {
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
@@ -124,18 +124,16 @@ const FeedSection = () => {
     initFeed();
   }, [initFeed]);
 
-  /*
-
   useEffect(() => {
     if (didMount.current && wallet.connected && wallet.address) {
       return;
     }
-    console.log(wallet.address);
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
     subscribePublishEvents(
       process.env.NEXT_PUBLIC_PACKAGE_ID,
       sui_provider,
       async (e) => {
+        console.log("subscribe event callback", e);
         if (wallet.connected && wallet.address) {
           initFeed();
         } else {
@@ -144,7 +142,6 @@ const FeedSection = () => {
       }
     );
   }, [wallet.address, wallet.connected]);
-  */
 
   const handleBuyBoxClick = (selectedSlot: Slot) => {
     setSelectedSlot(selectedSlot);
