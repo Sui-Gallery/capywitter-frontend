@@ -245,6 +245,7 @@ export const publishText = async (
         await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
       }
     } else {
+      console.log("else girdi")
       let amountEnough = false;
       let tokenIdx = 0;
       let totalAmt = 0;
@@ -254,50 +255,56 @@ export const publishText = async (
           console.error("Not enough budget");
           //TODO buraya girmemesinden emin olmalısın ramazan başta balance >= offer olmalı
         }
-        let curToken = cpwTokens[index];
+        let curToken = cpwTokens[tokenIdx];
         totalAmt += curToken.balance;
-        tokenToMerge.push(curToken);
+        tokenToMerge.push(curToken.coinObjectId);
         tokenIdx += 1;
         if (totalAmt >= offer) {
           amountEnough = true;
         }
       }
+      console.log("ilk while biti")
 
-      let primaryToken = cpwTokens[0];
-      for (let token of cpwTokens.slice(1)) {
+      let primaryToken = tokenToMerge[0];
+      for (let token of tokenToMerge.slice(1)) {
         const res = await wallet.signAndExecuteTransaction({
           transaction: {
             kind: "mergeCoin",
             data: {
-              primaryCoin: primaryToken.coinObjectId,
-              coinToMerge: token.coinObjectId,
+              primaryCoin: primaryToken,
+              coinToMerge: token,
               gasBudget: GAS_FEE,
             },
           },
         });
+        console.log(res)
       }
-      tokenToUse = primaryToken;
+      tokenToUse = primaryToken
     }
-
-    const result = await wallet.signAndExecuteTransaction({
-      transaction: {
-        kind: "moveCall",
-        data: {
-          packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
-          module: "twitter",
-          function: "publish_text_by_index",
-          typeArguments: [],
-          arguments: [
-            process.env.NEXT_PUBLIC_TWITTER_ID as string,
-            tokenToUse,
-            text,
-            index,
-          ],
-          gasBudget: 10000,
+    console.log(tokenToUse)
+    try {
+      const result = await wallet.signAndExecuteTransaction({
+        transaction: {
+          kind: "moveCall",
+          data: {
+            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+            module: "twitter",
+            function: "publish_text_by_index",
+            typeArguments: [],
+            arguments: [
+              process.env.NEXT_PUBLIC_TWITTER_ID as string,
+              tokenToUse,
+              text,
+              index,
+            ],
+            gasBudget: 10000,
+          },
         },
-      },
-    });
-
-    return result;
+      });
+      console.log(result)
+      return result;
+    } catch (e) {
+      console.log(e)
+    }
   }
 };
