@@ -199,6 +199,12 @@ const CapyBoardContent = (props: PopupProps) => {
 
   const handleSubmitClick = async () => {
     if (!wallet.address) return;
+
+    if (textContent.length === 0) {
+      alert("You haven't entered any text");
+      return;
+    }
+
     const user_balance = await getCpwBalance(wallet.address);
 
     if (offerPrice > user_balance) {

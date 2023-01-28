@@ -52,7 +52,7 @@ const HeaderStyled = styled.div`
   .your-wallet-info {
     z-index: -1;
     position: absolute;
-    width: 223px;
+    width: 240px;
     font-size: 16px;
     font-weight: bold;
     right: 10px;
@@ -116,8 +116,56 @@ const HeaderStyled = styled.div`
   }
 
   .wkit-button,
-  .wkit-connected-container {
-    width: 250px;
+  .wkit-connected-container,
+  .wkit-connected-button {
+    width: 260px;
+    height: 45px !important;
+  }
+
+  .wkit-button {
+    line-height: 0px;
+    color: #1a1d23;
+    font-weight: bold;
+    background: #f2f2f2 !important;
+    border-radius: 11px !important;
+    border: 1px solid #372f2f !important;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: #ddd !important;
+    }
+
+    &:active {
+      background: #cacaca !important;
+    }
+  }
+
+  .wkit-connected-button {
+    background: #4f4848 !important;
+    color: #fff !important;
+    --wkit-on-bg-rgb: 255, 255, 255;
+    border: 1px solid #372f2f !important;
+    font-size: 14px !important;
+    --wkit-font-size-medium: 14px;
+    padding-left: 10px;
+  }
+
+  .wkit-disconnect-button {
+    height: 40px;
+    border: 1px solid #372f2f !important;
+  }
+
+  .wkit-address-select__address {
+    font-size: 12px !important;
+  }
+
+  .wkit-connected-button__balance {
+    padding-left: 10px;
+    text-align: left;
+  }
+
+  .wkit-disconnect-button__container {
+    bottom: -48px;
   }
 `;
 
