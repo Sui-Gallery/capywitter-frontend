@@ -1,6 +1,7 @@
 import { exchangeCapy, getCapiesList } from "@/services/capy.service";
 import Button from "@/styles/button";
-import { useWallet } from "@suiet/wallet-kit";
+//import { useWallet } from "@suiet/wallet-kit";
+import { useWalletKit } from "@mysten/wallet-kit";
 import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
@@ -67,7 +68,7 @@ const CapyTokenSectionStyled = styled.div`
 
 const CapyTokenSection = () => {
   const [popupShow, setPopupShow] = useState(false);
-  const wallet = useWallet();
+  const wallet = useWalletKit();
 
   const [userCapies, setUserCapies] = useState<any[]>([]);
 
@@ -83,13 +84,13 @@ const CapyTokenSection = () => {
   };
 
   const initUserCapies = useCallback(async () => {
-    if (wallet.connected && wallet.address) {
-      console.log("wallet address", wallet.address);
+    if (wallet.isConnected && wallet.currentAccount) {
+      console.log("wallet address", wallet.currentAccount);
 
-      const capies = await getCapiesList(wallet.address);
+      const capies = await getCapiesList(wallet.currentAccount);
       setUserCapies(capies);
     }
-  }, [wallet.address, wallet.connected]);
+  }, [wallet.currentAccount, wallet.isConnected]);
 
   useEffect(() => {
     initUserCapies();

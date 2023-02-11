@@ -1,5 +1,6 @@
 import { getCapiesList } from "@/services/capy.service";
-import { useWallet } from "@suiet/wallet-kit";
+//import { useWallet } from "@suiet/wallet-kit";
+import { useWalletKit } from "@mysten/wallet-kit";
 import { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import CapyItem from "../capy-item";
@@ -24,16 +25,16 @@ const HotelCapyforniaSectionStyled = styled.div`
 
 const HotelCapyforniaSection = () => {
   const [capyforniaList, setCapyforniaList] = useState<any[]>([]);
-  const wallet = useWallet();
+  const wallet = useWalletKit();
 
   const initCapyfornia = useCallback(async () => {
-    if (wallet.connected && wallet.address) {
-      console.log("wallet address", wallet.address);
+    if (wallet.isConnected && wallet.currentAccount) {
+      console.log("wallet address", wallet.currentAccount);
 
       const capies = await getCapiesList(process.env.NEXT_PUBLIC_CAPYFORNIA_ID);
       setCapyforniaList(capies);
     }
-  }, [wallet.address, wallet.connected]);
+  }, [wallet.currentAccount, wallet.isConnected]);
 
   useEffect(() => {
     initCapyfornia();

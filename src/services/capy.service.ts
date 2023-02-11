@@ -1,8 +1,8 @@
 import { GAS_FEE } from "@/utils/constants";
-import { WalletContextState } from "@suiet/wallet-kit";
+//import { WalletContextState } from "@suiet/wallet-kit";
 import axios from "axios";
 import { JsonRpcProvider, SuiEventEnvelope } from "@mysten/sui.js";
-
+import { WalletKitCore } from "@mysten/wallet-kit-core";
 export const subscribePublishEvents = async (
   packageId: string,
   provider: JsonRpcProvider,
@@ -108,22 +108,20 @@ export const getCapiesList = async (address: string): Promise<Array<any>> => {
 };
 
 export const exchangeCapy = async (
-  wallet: WalletContextState,
+  wallet: WalletKitCore,
   capyList: string[]
 ) => {
   try {
-    if (wallet.connected) {
+    if (wallet.getState().isConnected) {
       const result = await wallet.signAndExecuteTransaction({
-        transaction: {
-          kind: "moveCall",
-          data: {
-            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
-            module: "cpwtoken",
-            function: "exchange_tokens_for_capy",
-            typeArguments: [],
-            arguments: [capyList, process.env.NEXT_PUBLIC_RESERVE_ID as string],
-            gasBudget: 10000,
-          },
+        kind: "moveCall",
+        data: {
+          packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+          module: "cpwtoken",
+          function: "exchange_tokens_for_capy",
+          typeArguments: [],
+          arguments: [capyList, process.env.NEXT_PUBLIC_RESERVE_ID as string],
+          gasBudget: 10000,
         },
       });
       console.log("exchange result", result);
@@ -163,20 +161,18 @@ export const getCpwBalance = async (address: string) => {
 };
 
 export const splitCoin = async (
-  wallet: WalletContextState,
+  wallet: WalletKitCore,
   signerAddress: string,
   coinId: string,
   splitAmts: number[]
 ) => {
-  if (wallet.connected) {
+  if (wallet.getState().isConnected) {
     const result = await wallet.signAndExecuteTransaction({
-      transaction: {
-        kind: "splitCoin",
-        data: {
-          coinObjectId: coinId,
-          splitAmounts: splitAmts,
-          gasBudget: GAS_FEE,
-        },
+      kind: "splitCoin",
+      data: {
+        coinObjectId: coinId,
+        splitAmounts: splitAmts,
+        gasBudget: GAS_FEE,
       },
     });
     console.log("Result of split txn");
@@ -191,15 +187,14 @@ export const mergeCoins = async () => {
 
 // component function
 export const publishText = async (
-  wallet: WalletContextState,
+  wallet: WalletKitCore,
   text: string,
   offer: number,
   index: number
 ) => {
-  if (wallet.connected && wallet.address) {
-    console.log(await wallet.getPublicKey());
+  if (wallet.getState().isConnected && wallet.getState().currentAccount) {
     // First get all the tokens owned by wallet
-    const address = wallet.address;
+    const address = wallet.getState().currentAccount;
     const tokenType =
       process.env.NEXT_PUBLIC_PACKAGE_ID + "::cpwtoken::" + "CPWTOKEN";
 
@@ -243,10 +238,14 @@ export const publishText = async (
       if (usedBalance == offer) {
         // dont split directly publish
       } else {
-        await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
+        if (address) {
+          await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
+        } else {
+          console.error("address is null");
+        }
       }
     } else {
-      console.log("else girdi")
+      console.log("else girdi");
       let amountEnough = false;
       let tokenIdx = 0;
       let totalAmt = 0;
@@ -264,50 +263,46 @@ export const publishText = async (
           amountEnough = true;
         }
       }
-      console.log("ilk while biti")
+      console.log("ilk while biti");
 
       let primaryToken = tokenToMerge[0];
       for (let token of tokenToMerge.slice(1)) {
         const res = await wallet.signAndExecuteTransaction({
-          transaction: {
-            kind: "mergeCoin",
-            data: {
-              primaryCoin: primaryToken,
-              coinToMerge: token,
-              gasBudget: GAS_FEE,
-            },
+          kind: "mergeCoin",
+          data: {
+            primaryCoin: primaryToken,
+            coinToMerge: token,
+            gasBudget: GAS_FEE,
           },
         });
-        console.log(res)
+        console.log(res);
       }
-      tokenToUse = primaryToken
+      tokenToUse = primaryToken;
     }
-    console.log(tokenToUse)
+    console.log(tokenToUse);
     try {
       const result = await wallet.signAndExecuteTransaction({
-        transaction: {
-          kind: "moveCall",
-          data: {
-            packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
-            module: "twitter",
-            function: "publish_text_by_index",
-            typeArguments: [],
-            arguments: [
-              process.env.NEXT_PUBLIC_TWITTER_ID as string,
-              tokenToUse,
-              text,
-              index,
-            ],
-            gasBudget: 10000,
-          },
+        kind: "moveCall",
+        data: {
+          packageObjectId: process.env.NEXT_PUBLIC_PACKAGE_ID as string,
+          module: "twitter",
+          function: "publish_text_by_index",
+          typeArguments: [],
+          arguments: [
+            process.env.NEXT_PUBLIC_TWITTER_ID as string,
+            tokenToUse,
+            text,
+            index,
+          ],
+          gasBudget: 10000,
         },
       });
-      console.log("publish result")
-      console.log(result)
+      console.log("publish result");
+      console.log(result);
       return result;
     } catch (e) {
       console.log("in exchange error");
-      console.log(e)
+      console.log(e);
     }
   }
 };

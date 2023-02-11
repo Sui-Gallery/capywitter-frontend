@@ -6,7 +6,8 @@ import {
 import Button from "@/styles/button";
 import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
-import { useWallet } from "@suiet/wallet-kit";
+//import { useWallet } from "@suiet/wallet-kit";
+import { useWalletKit } from "@mysten/wallet-kit";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
@@ -49,7 +50,7 @@ const CapyTokenContentStyled = styled.div`
 `;
 
 const CapyTokenContent = (props: PopupProps) => {
-  const wallet = useWallet();
+  const wallet = useWalletKit();
   const availableCapybaras = props?.userCapies?.length || 0;
   const capytokensWillReceived = props?.userCapies?.length
     ? props?.userCapies?.length * 10
@@ -190,7 +191,7 @@ const CapyBoardContent = (props: PopupProps) => {
       ? Number(props?.selectedSlot?.minimum_fee) + 1
       : 0
   );
-  const wallet = useWallet();
+  const wallet = useWalletKit();
 
   useEffect(() => {
     if (!props?.selectedSlot) {
@@ -200,14 +201,14 @@ const CapyBoardContent = (props: PopupProps) => {
   }, []);
 
   const handleSubmitClick = async () => {
-    if (!wallet.address) return;
+    if (!wallet.currentAccount) return;
 
     if (textContent.length === 0) {
       alert("You haven't entered any text");
       return;
     }
 
-    const user_balance = await getCpwBalance(wallet.address);
+    const user_balance = await getCpwBalance(wallet.currentAccount);
 
     if (offerPrice > user_balance) {
       alert("You don't have enough CapyTokens");

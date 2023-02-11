@@ -3,7 +3,8 @@ import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Logo from "./logo";
-import { ConnectButton, useWallet } from "@suiet/wallet-kit";
+//import { ConnectButton, useWalletKit } from "@suiet/wallet-kit";
+import { ConnectButton, useWalletKit } from "@mysten/wallet-kit";
 import { isMobile } from "@/utils/utils";
 import {
   getCapiesList,
@@ -171,35 +172,36 @@ const HeaderStyled = styled.div`
 
 const Header = () => {
   const router = useRouter();
-  const wallet = useWallet();
+  const wallet = useWalletKit();
   const [capybaras, setCapybaras] = useState(0);
   const [capyTokens, setCapyTokens] = useState(0);
   //const didMount = useRef(false);
 
   const initWalletInfo = useCallback(async () => {
-    if (wallet.connected && wallet.address) {
-      setCapybaras((await getCapiesList(wallet.address))?.length || 0);
-      setCapyTokens((await getCpwBalance(wallet.address)) || 0);
+    if (wallet.isConnected && wallet.currentAccount) {
+      console.log(wallet.currentAccount);
+      setCapybaras((await getCapiesList(wallet.currentAccount))?.length || 0);
+      setCapyTokens((await getCpwBalance(wallet.currentAccount)) || 0);
     }
   }, [wallet]);
 
   useEffect(() => {
-    console.log(wallet.address);
+    console.log(wallet.currentAccount);
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
     subscribeExchangeEvents(
       process.env.NEXT_PUBLIC_PACKAGE_ID,
       sui_provider,
       async (e) => {
         console.log("subscribe exchange event callback", e);
-        if (wallet.connected && wallet.address) {
-          setCapybaras((await getCapiesList(wallet.address))?.length || 0);
-          setCapyTokens((await getCpwBalance(wallet.address)) || 0);
+        if (wallet.isConnected && wallet.currentAccount) {
+          setCapybaras((await getCapiesList(wallet.currentAccount))?.length || 0);
+          setCapyTokens((await getCpwBalance(wallet.currentAccount)) || 0);
         } else {
           console.log("wallet is not connected");
         }
       }
     );
-  }, [wallet.address, wallet.connected]);
+  }, [wallet.currentAccount, wallet.isConnected]);
 
   useEffect(() => {
     initWalletInfo();
@@ -235,7 +237,7 @@ const Header = () => {
       </div>
       <div className="button-con">
         {!isMobile() && <ConnectButton />}
-        {wallet.connected && (
+        {wallet.isConnected && (
           <div className="your-wallet-info">
             <div className="your-wallet-title">Your Wallet</div>
             <div className="your-wallet-items">

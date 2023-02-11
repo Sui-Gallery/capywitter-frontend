@@ -3,7 +3,9 @@ import Button from "@/styles/button";
 import { Slot } from "@/types/Slot";
 import { isMobile } from "@/utils/utils";
 import { JsonRpcProvider } from "@mysten/sui.js";
-import { useWallet } from "@suiet/wallet-kit";
+//import { useWallet } from "@suiet/wallet-kit";
+import { useWalletKit } from "@mysten/wallet-kit";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import AvailabilityText from "../availability-text";
@@ -89,7 +91,8 @@ const FeedSection = () => {
   const [popupShow, setPopupShow] = useState(false);
   const [capySlots, setCapySlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-  const wallet = useWallet();
+  const wallet = useWalletKit();
+
   const didMount = useRef(false);
 
   const initFeed = useCallback(async () => {
@@ -125,7 +128,7 @@ const FeedSection = () => {
   }, [initFeed]);
 
   useEffect(() => {
-    if (didMount.current && wallet.connected && wallet.address) {
+    if (didMount.current && wallet.isConnected && wallet.currentAccount) {
       return;
     }
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
@@ -134,14 +137,14 @@ const FeedSection = () => {
       sui_provider,
       async (e) => {
         console.log("subscribe event callback", e);
-        if (wallet.connected && wallet.address) {
+        if (wallet.isConnected && wallet.currentAccount) {
           initFeed();
         } else {
           console.log("wallet is not connected");
         }
       }
     );
-  }, [wallet.address, wallet.connected]);
+  }, [wallet.currentAccount, wallet.isConnected]);
 
   const handleBuyBoxClick = (selectedSlot: Slot) => {
     setSelectedSlot(selectedSlot);
@@ -169,7 +172,7 @@ const FeedSection = () => {
             <span className="info-title">current min box price:</span>
             <span>{slot.minimum_fee} CAPYTOKEN</span>
           </div>
-          {wallet.address === slot.edited_by ? (
+          {wallet.currentAccount === slot.edited_by ? (
             ""
           ) : (
             <Button
