@@ -130,6 +130,7 @@ export const exchangeCapy = async (
       return result;
     }
   } catch (err) {
+    console.log("in capy exchange error");
     console.log(err);
     return false;
   }
@@ -301,9 +302,11 @@ export const publishText = async (
           },
         },
       });
+      console.log("publish result")
       console.log(result)
       return result;
     } catch (e) {
+      console.log("in exchange error");
       console.log(e)
     }
   }

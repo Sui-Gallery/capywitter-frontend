@@ -61,6 +61,8 @@ const CapyTokenContent = (props: PopupProps) => {
       [];
 
     const result = await exchangeCapy(wallet, allCapyIds);
+    console.log("printing result");
+    console.log(result);
 
     if (result && result?.effects.status.status === "success") {
       props.setUserCapies([]);
