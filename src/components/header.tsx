@@ -9,6 +9,7 @@ import {
   getCapiesList,
   getCpwBalance,
   subscribeExchangeEvents,
+  subscribePublishEvents,
 } from "@/services/capy.service";
 import { JsonRpcProvider } from "@mysten/sui.js";
 
@@ -190,13 +191,28 @@ const Header = () => {
       process.env.NEXT_PUBLIC_PACKAGE_ID,
       sui_provider,
       async (e) => {
-        console.log("subscribe exchange event callback", e);
+        console.log("subscribe exchange event callback - exchange event", e);
         if (wallet.connected && wallet.address) {
-          console.log("-getting new capy data");
+          console.log("-getting new capy data - exchange event");
           setCapybaras((await getCapiesList(wallet.address))?.length || 0);
           setCapyTokens((await getCpwBalance(wallet.address)) || 0);
         } else {
-          console.log("wallet is not connected");
+          console.log("wallet is not connected - exchange event");
+        }
+      }
+    );
+
+    subscribePublishEvents(
+      process.env.NEXT_PUBLIC_PACKAGE_ID,
+      sui_provider,
+      async (e) => {
+        console.log("subscribe event callback - publish event", e);
+        if (wallet.connected && wallet.address) {
+          console.log("-getting new capy data - publish event");
+          setCapybaras((await getCapiesList(wallet.address))?.length || 0);
+          setCapyTokens((await getCpwBalance(wallet.address)) || 0);
+        } else {
+          console.log("wallet is not connected - publish event");
         }
       }
     );

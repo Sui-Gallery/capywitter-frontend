@@ -141,7 +141,7 @@ const FeedSection = () => {
         }
       }
     );
-  }, [wallet.address, wallet.connected]);
+  }, [wallet.address, wallet.connected, initFeed]);
 
   const handleBuyBoxClick = (selectedSlot: Slot) => {
     setSelectedSlot(selectedSlot);
