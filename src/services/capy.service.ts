@@ -246,7 +246,7 @@ export const publishText = async (
         await splitCoin(wallet, address, tokenToUse, [usedBalance - offer]);
       }
     } else {
-      console.log("else girdi")
+      console.log("else girdi");
       let amountEnough = false;
       let tokenIdx = 0;
       let totalAmt = 0;
@@ -264,7 +264,7 @@ export const publishText = async (
           amountEnough = true;
         }
       }
-      console.log("ilk while biti")
+      console.log("ilk while biti");
 
       let primaryToken = tokenToMerge[0];
       for (let token of tokenToMerge.slice(1)) {
@@ -278,11 +278,11 @@ export const publishText = async (
             },
           },
         });
-        console.log(res)
+        console.log(res);
       }
-      tokenToUse = primaryToken
+      tokenToUse = primaryToken;
     }
-    console.log(tokenToUse)
+    console.log(tokenToUse);
     try {
       const result = await wallet.signAndExecuteTransaction({
         transaction: {
@@ -302,12 +302,12 @@ export const publishText = async (
           },
         },
       });
-      console.log("publish result")
-      console.log(result)
+      console.log("publish result");
+      console.log(result);
       return result;
     } catch (e) {
       console.log("in exchange error");
-      console.log(e)
+      console.log(e);
     }
   }
 };

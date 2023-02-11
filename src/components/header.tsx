@@ -184,14 +184,15 @@ const Header = () => {
   }, [wallet]);
 
   useEffect(() => {
-    console.log(wallet.address);
     const sui_provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    console.log("111");
     subscribeExchangeEvents(
       process.env.NEXT_PUBLIC_PACKAGE_ID,
       sui_provider,
       async (e) => {
         console.log("subscribe exchange event callback", e);
         if (wallet.connected && wallet.address) {
+          console.log("-getting new capy data");
           setCapybaras((await getCapiesList(wallet.address))?.length || 0);
           setCapyTokens((await getCpwBalance(wallet.address)) || 0);
         } else {
