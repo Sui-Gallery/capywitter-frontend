@@ -75,6 +75,7 @@ const CapyTokenSection = () => {
     const result = await exchangeCapy(wallet, [objectId]);
     if (result && result?.effects.status.status === "success") {
       initUserCapies();
+      alert("Successfully exchanged Capys for Token");
     }
   };
 

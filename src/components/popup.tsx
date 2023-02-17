@@ -67,6 +67,7 @@ const CapyTokenContent = (props: PopupProps) => {
     if (result && result?.effects.status.status === "success") {
       props.setUserCapies([]);
       props.setShow(false);
+      alert("Successfully exchanged Capys for Token");
       return;
     }
     console.log(3);
