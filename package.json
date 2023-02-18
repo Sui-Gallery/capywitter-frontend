@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.26.1",
+    "@mysten/sui.js": "^0.27.0",
     "@next/bundle-analyzer": "^13.1.1",
     "@next/font": "13.0.7",
     "@suiet/wallet-kit": "^0.1.21",
